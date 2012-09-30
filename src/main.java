@@ -30,6 +30,12 @@ public class main {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		// This will make the executor accept no new threads
+	    // and finish all existing threads in the queue
+	    executor.shutdown();
+	    // Wait until all threads are finish
+	    while (!executor.isTerminated()) {
+	      }
 		report.print();
 	}
 

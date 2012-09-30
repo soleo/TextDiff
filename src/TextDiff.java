@@ -1,6 +1,8 @@
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -41,19 +43,31 @@ public class TextDiff {
 		String[] lNew = null;
 		// Create the object 
 		//List<Future<String[]>> list = new ArrayList<Future<String[]>>();
+		Set<Callable<String[]>> callables = new HashSet<Callable<String[]>>();
 		
 		Callable<String[]> task1 = new TextFileInCallable(oldFile);
 		Callable<String[]> task2 = new TextFileInCallable(newFile);
 		
-		Future<String[]> submit1 = es.submit(task1);
-		Future<String[]> submit2 = es.submit(task2);
+		callables.add(task1);
+		callables.add(task2);
+		
+		List<Future<String[]>> future = null;
+		try {
+			future = es.invokeAll(callables);
+		} catch (InterruptedException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		//Future<String[]> submit1 = es.submit(task1);
+		//Future<String[]> submit2 = es.submit(task2);
 		
 		//list.add(submit1);
 		//list.add(submit2);
 	
 		// Get the result from the threads
 		try {
-			lOld = submit1.get();
+			lOld = future.get(0).get();
+			System.out.println("Old");
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -62,7 +76,8 @@ public class TextDiff {
 			e1.printStackTrace();
 		}
 		try {
-			lNew = submit2.get();
+			lNew = future.get(1).get();
+			System.out.println("New");
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -71,9 +86,16 @@ public class TextDiff {
 			e.printStackTrace();
 		}
 		
-		return compare(lOld, lNew);
+		return compareThread(lOld, lNew, es);
 	}
 
+	public Report compareThread(String[] oldLines, String[] newLines, ExecutorService es ){
+		createFileInfo(oldLines, newLines);
+		createSymbols();
+		createLineInfoThread(es);
+		stretchMatches(oldFileInfo);
+		return new Report(oldFileInfo, newFileInfo);
+	}
 	/** Compare two string arrays */
 	public Report compare(String[] oldLines, String[] newLines) {
 		createFileInfo(oldLines, newLines);
@@ -86,7 +108,7 @@ public class TextDiff {
 	private void createFileInfo(String[] oldLines, String[] newLines) {
 		oldFileInfo = new FileInfo(oldLines);
 		newFileInfo = new FileInfo(newLines);
-		// threads to do it
+		//Just created the object, no need to use two thread. by Xinjiang
 	}
 
 	/** Create a symbol for each unique string */
@@ -106,9 +128,36 @@ public class TextDiff {
 	private void createLineInfo() {
 		createLineInfo(oldFileInfo);
 		createLineInfo(newFileInfo);
-		// two threads to create the line info
+		
 	}
+	// two threads to create the line info
+	private void createLineInfoThread(ExecutorService es){
+		Runnable task1 = new LineInfoRunnable(oldFileInfo, symbols);
+		Runnable task2 = new LineInfoRunnable(newFileInfo, symbols);
+		List<Future<Runnable>> futures = new ArrayList<Future<Runnable>>();
 
+	     
+	      
+	   Future f1 = es.submit(task1);
+	   Future f2 = es.submit(task2);
+	   futures.add(f1);
+	   futures.add(f2); 
+
+	   // wait for all tasks to complete before continuing
+	   for (Future<Runnable> f : futures)
+	   {
+	         try {
+				f.get();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	    }
+
+	}
 	private void createLineInfo(FileInfo fileInfo) {
 		for (int line = 0; line < fileInfo.length; line++) {
 			LineInfo lineInfo = new LineInfo();
