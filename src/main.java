@@ -24,12 +24,13 @@ public class main {
 		
 		Report report = null;
 		try {
-			report = new TextDiff().compare( oldFileName, newFileName );
+			//report = new TextDiff().compare( oldFileName, newFileName );
+			report = new TextDiff().compareWithThread( oldFileName, newFileName, executor);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		report.print( );
+		report.print();
 	}
 
 }

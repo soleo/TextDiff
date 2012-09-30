@@ -6,27 +6,42 @@ import java.io.FileReader;
 import java.io.IOException;  
 import java.util.ArrayList;  
 import java.util.List; 
+import java.util.concurrent.Callable;
 
-public class TextFileInThread implements Runnable {
+public class TextFileInCallable implements Callable<String[]> {
 	
 	private String filename;
-	public  String[] lines;
-	private BufferedReader mReader = null;
 	
-	// Run the thread to read
-    public void run() {
-        //Run Code in Thread
+	private BufferedReader mReader = null;
+
+	@Override
+	public String[] call() throws Exception {
+		// TODO Auto-generated method stub
+		 //Run Code in Thread
     	String filename = this.filename;
+    	String[] lines = null;
     	// doing reading file and feed the data to array lines;
-    }
+    	try {
+			TextFileIn(filename);
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		try {
+			lines = asArray();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return lines;
+	}  
+   
     
-    TextFileInThread(){
-    	
-    }
-    
-    TextFileInThread(String fileName, String[] lines){
+    TextFileInCallable(String fileName){
     	this.filename = fileName;
-    	this.lines = lines;
+    	
     }
     
     
@@ -98,5 +113,7 @@ public class TextFileInThread implements Runnable {
         catch (Exception e)  
         {  
         }  
-    }  
+    }
+
+
 }

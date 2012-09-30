@@ -1,4 +1,11 @@
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * Compares two text files or arrays of strings and generates a report of edit
@@ -29,37 +36,41 @@ public class TextDiff {
 		return compare(lOld, lNew);
 	}
 	
-	public Report compareWithThread(String oldFile, String newFile){
+	public Report compareWithThread(String oldFile, String newFile, ExecutorService es){
 		String[] lOld = null;
 		String[] lNew = null;
-		// Create the object with the run() method
-		Runnable oldfileRunnable = new TextFileInThread(oldFile, lOld);
-		Runnable newfileRunnable = new TextFileInThread(newFile, lNew);
+		// Create the object 
+		//List<Future<String[]>> list = new ArrayList<Future<String[]>>();
 		
-		// Create the threads supplying it with the runnable object
-		Thread thread1 = new Thread(oldfileRunnable);
-		Thread thread2 = new Thread(newfileRunnable);
-
-		// Start the threads
-		thread1.start();
-		thread2.start();
+		Callable<String[]> task1 = new TextFileInCallable(oldFile);
+		Callable<String[]> task2 = new TextFileInCallable(newFile);
 		
-		// Wait for threads to join the main thread
-		try {
-			thread1.join();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Future<String[]> submit1 = es.submit(task1);
+		Future<String[]> submit2 = es.submit(task2);
 		
-		try {
-			thread2.join();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+		//list.add(submit1);
+		//list.add(submit2);
+	
 		// Get the result from the threads
+		try {
+			lOld = submit1.get();
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (ExecutionException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
+			lNew = submit2.get();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		return compare(lOld, lNew);
 	}
 
