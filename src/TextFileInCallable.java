@@ -11,7 +11,6 @@ import java.util.concurrent.Callable;
 public class TextFileInCallable implements Callable<StrArray> {
 	
 	private String filename;
-	private FileInfo fileInfo;
 	private BufferedReader mReader = null;
 
 	@Override
@@ -20,7 +19,7 @@ public class TextFileInCallable implements Callable<StrArray> {
 		 //Run Code in Thread
     	String filename = this.filename;
     	String[] lines = null;
-    	StrArray ret =  null;
+    	StrArray ret =  new StrArray();
     	// doing reading file and feed the data to array lines;
     	try {
 			TextFileIn(filename);
@@ -37,15 +36,13 @@ public class TextFileInCallable implements Callable<StrArray> {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		createFileInfoThread(ret.arr, fileInfo);
+		ret.fileInfo = createFileInfoThread(ret.arr);
 		return ret;
 	}  
    
     
-    TextFileInCallable(String fileName, FileInfo fileInfo){
+    TextFileInCallable(String fileName){
     	this.filename = fileName;
-    	this.fileInfo = fileInfo;
-    	
     }
     
     
@@ -119,8 +116,8 @@ public class TextFileInCallable implements Callable<StrArray> {
         }  
     }
     
-    private void createFileInfoThread(String[] lines, FileInfo f) {
-		f = new FileInfo(lines);
+    private FileInfo createFileInfoThread(String[] lines) {
+		return new FileInfo(lines);
 	}
 
 

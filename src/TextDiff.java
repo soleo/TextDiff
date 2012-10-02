@@ -45,8 +45,8 @@ public class TextDiff {
 		//List<Future<String[]>> list = new ArrayList<Future<String[]>>();
 		Set<Callable<StrArray>> callables = new HashSet<Callable<StrArray>>();
 		
-		Callable<StrArray> task1 = new TextFileInCallable(oldFile, oldFileInfo);
-		Callable<StrArray> task2 = new TextFileInCallable(newFile, newFileInfo);
+		Callable<StrArray> task1 = new TextFileInCallable(oldFile);
+		Callable<StrArray> task2 = new TextFileInCallable(newFile);
 		
 		callables.add(task1);
 		callables.add(task2);
@@ -58,12 +58,6 @@ public class TextDiff {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		}
-		//Future<String[]> submit1 = es.submit(task1);
-		//Future<String[]> submit2 = es.submit(task2);
-		
-		//list.add(submit1);
-		//list.add(submit2);
-	
 		// Get the result from the threads
 		try {
 			StrArray temp = future.get(0).get();
@@ -90,10 +84,10 @@ public class TextDiff {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		return compareThread(lOld, lNew);
+		return compareWithThread();
 	}
 	
-	public Report compareThread(String[] oldLines, String[] newLines){
+	public Report compareWithThread(){
 		//TODO make parallel, use sequential and concurrent hash map (Silviu)
 		createSymbols();
 		//is parallel
@@ -111,6 +105,7 @@ public class TextDiff {
 		stretchMatches(oldFileInfo);
 		return new Report(oldFileInfo, newFileInfo);
 	}
+	/** Thread version moved in TextFIleInCallable.java **/
 	private void createFileInfo(String[] oldLines, String[] newLines) {
 		oldFileInfo = new FileInfo(oldLines);
 		newFileInfo = new FileInfo(newLines);
@@ -124,8 +119,19 @@ public class TextDiff {
 		createSymbols(newFileInfo, NEW);
 
 	}
+	/** Create a symbol for each unique string */
+	private void createSymbolsThread() {
+		ExecutorService es =main.executor;
+		symbols = new SymbolCollection();
+		createSymbolsThread(oldFileInfo, OLD);
+		createSymbolsThread(newFileInfo, NEW);
 
+	}
 	private void createSymbols(FileInfo fileInfo, int fileIx) {
+		for (int line = 0; line < fileInfo.length; line++)
+			symbols.registerSymbol(fileIx, fileInfo.lines[line], line);
+	}
+	private void createSymbolsThread(FileInfo fileInfo, int fileIx) {
 		for (int line = 0; line < fileInfo.length; line++)
 			symbols.registerSymbol(fileIx, fileInfo.lines[line], line);
 	}
