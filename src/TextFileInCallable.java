@@ -8,18 +8,19 @@ import java.util.ArrayList;
 import java.util.List; 
 import java.util.concurrent.Callable;
 
-public class TextFileInCallable implements Callable<String[]> {
+public class TextFileInCallable implements Callable<StrArray> {
 	
 	private String filename;
-	
+	private FileInfo fileInfo;
 	private BufferedReader mReader = null;
 
 	@Override
-	public String[] call() throws Exception {
+	public StrArray call() throws Exception {
 		// TODO Auto-generated method stub
 		 //Run Code in Thread
     	String filename = this.filename;
     	String[] lines = null;
+    	StrArray ret =  null;
     	// doing reading file and feed the data to array lines;
     	try {
 			TextFileIn(filename);
@@ -30,17 +31,20 @@ public class TextFileInCallable implements Callable<String[]> {
 		}
 		
 		try {
-			lines = asArray();
+			ret.arr = asArray();
+			ret.filename = filename;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return lines;
+		createFileInfoThread(ret.arr, fileInfo);
+		return ret;
 	}  
    
     
-    TextFileInCallable(String fileName){
+    TextFileInCallable(String fileName, FileInfo fileInfo){
     	this.filename = fileName;
+    	this.fileInfo = fileInfo;
     	
     }
     
@@ -114,6 +118,10 @@ public class TextFileInCallable implements Callable<String[]> {
         {  
         }  
     }
+    
+    private void createFileInfoThread(String[] lines, FileInfo f) {
+		f = new FileInfo(lines);
+	}
 
 
 }

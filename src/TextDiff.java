@@ -20,7 +20,7 @@ public class TextDiff {
 	private SymbolCollection symbols;
 	private FileInfo oldFileInfo;
 	private FileInfo newFileInfo;
-
+	
 	public TextDiff() {
 	}
 
@@ -43,15 +43,15 @@ public class TextDiff {
 		String[] lNew = null;
 		// Create the object 
 		//List<Future<String[]>> list = new ArrayList<Future<String[]>>();
-		Set<Callable<String[]>> callables = new HashSet<Callable<String[]>>();
+		Set<Callable<StrArray>> callables = new HashSet<Callable<StrArray>>();
 		
-		Callable<String[]> task1 = new TextFileInCallable(oldFile);
-		Callable<String[]> task2 = new TextFileInCallable(newFile);
+		Callable<StrArray> task1 = new TextFileInCallable(oldFile, oldFileInfo);
+		Callable<StrArray> task2 = new TextFileInCallable(newFile, newFileInfo);
 		
 		callables.add(task1);
 		callables.add(task2);
 		
-		List<Future<String[]>> future = null;
+		List<Future<StrArray>> future = null;
 		try {
 			future = es.invokeAll(callables);
 		} catch (InterruptedException e2) {
@@ -66,8 +66,23 @@ public class TextDiff {
 	
 		// Get the result from the threads
 		try {
-			lOld = future.get(0).get();
-			System.out.println("Old");
+			StrArray temp = future.get(0).get();
+			if ( temp.filename == oldFile)
+			{
+				lOld = temp.arr;
+				lNew = future.get(1).get().arr;
+				oldFileInfo = temp.fileInfo;
+				newFileInfo = future.get(1).get().fileInfo;
+				System.out.println(" old and new file string arrays received");
+			}
+			else
+			{
+				lOld = future.get(1).get().arr;
+				lNew = temp.arr;
+				oldFileInfo = future.get(1).get().fileInfo;
+				newFileInfo = temp.fileInfo;
+				System.out.println(" new and old file string arrays received");
+			}
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -75,25 +90,17 @@ public class TextDiff {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		try {
-			lNew = future.get(1).get();
-			System.out.println("New");
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return compareThread(lOld, lNew, es);
+		return compareThread(lOld, lNew);
 	}
-
-	public Report compareThread(String[] oldLines, String[] newLines, ExecutorService es ){
-		createFileInfo(oldLines, newLines);
+	
+	public Report compareThread(String[] oldLines, String[] newLines){
+		//TODO make parallel, use sequential and concurrent hash map (Silviu)
 		createSymbols();
-		createLineInfoThread(es);
+		//is parallel
+		createLineInfoThread();
+		//TODO Silviu and Xinjiang
 		stretchMatches(oldFileInfo);
+		//TODO implement some sort of time measure
 		return new Report(oldFileInfo, newFileInfo);
 	}
 	/** Compare two string arrays */
@@ -104,7 +111,6 @@ public class TextDiff {
 		stretchMatches(oldFileInfo);
 		return new Report(oldFileInfo, newFileInfo);
 	}
-
 	private void createFileInfo(String[] oldLines, String[] newLines) {
 		oldFileInfo = new FileInfo(oldLines);
 		newFileInfo = new FileInfo(newLines);
@@ -131,12 +137,11 @@ public class TextDiff {
 		
 	}
 	// two threads to create the line info
-	private void createLineInfoThread(ExecutorService es){
+	private void createLineInfoThread(){
+		ExecutorService es = main.executor;
 		Runnable task1 = new LineInfoRunnable(oldFileInfo, symbols);
 		Runnable task2 = new LineInfoRunnable(newFileInfo, symbols);
 		List<Future<Runnable>> futures = new ArrayList<Future<Runnable>>();
-
-	     
 	      
 	   Future f1 = es.submit(task1);
 	   Future f2 = es.submit(task2);
@@ -156,7 +161,6 @@ public class TextDiff {
 				e.printStackTrace();
 			}
 	    }
-
 	}
 	private void createLineInfo(FileInfo fileInfo) {
 		for (int line = 0; line < fileInfo.length; line++) {

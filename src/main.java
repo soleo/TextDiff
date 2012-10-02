@@ -15,12 +15,11 @@ public class main {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+	public static void parallelRun(String oldFileName, String newFileName)
+	{
+		System.out.println ("Parallel test ...");
+		long start = System.nanoTime();
 		executor = Executors.newFixedThreadPool(NTHREADS);
-		
-		String oldFileName = "oldfile";
-		String newFileName = "newfile";
 		
 		Report report = null;
 		try {
@@ -37,6 +36,29 @@ public class main {
 	    while (!executor.isTerminated()) {
 	      }
 		report.print();
+		long end = System.nanoTime();
+		long microseconds = (end - start) / 1000;
+		System.out.println("Latency: " + microseconds);
+	}
+	public static void sequentialRun(String oldFileName, String newFileName)
+	{
+		System.out.println ("Sequential test ...");
+		long start = System.nanoTime();
+		Report report = null;
+		try {
+			report = new TextDiff().compare( oldFileName, newFileName );
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		report.print();
+		long end = System.nanoTime();
+		long microseconds = (end - start) / 1000;
+		System.out.println("Latency: " + microseconds);
+	}
+	public static void main(String[] args) 
+	{
+		sequentialRun(args[1],args[2]);
+		parallelRun(args[1],args[2]);
 	}
 
 }

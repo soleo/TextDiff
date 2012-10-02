@@ -12,11 +12,15 @@ public class SymbolCollection
 
     public Symbol getSymbolFor(String line)
     {
-        Symbol symbol = (Symbol) symbols.get( line );
-        if (null == symbol)
+    	Symbol symbol=null;
+    	synchronized(symbols)
         {
-            symbol = new Symbol();
-            symbols.put( line, symbol );
+	        symbol = (Symbol) symbols.get( line );
+	        if (null == symbol)
+	        {
+	            symbol = new Symbol();
+	            symbols.put( line, symbol );
+	        }
         }
         return symbol;
     }
