@@ -75,7 +75,6 @@ public class TextDiff {
 				lNew = temp.arr;
 				oldFileInfo = future.get(1).get().fileInfo;
 				newFileInfo = temp.fileInfo;
-				System.out.println(" new and old file string arrays received");
 			}
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block

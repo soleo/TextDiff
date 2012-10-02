@@ -18,9 +18,9 @@ public class main {
 	
 	public static void parallelRun(String oldFileName, String newFileName)
 	{
-		executor = Executors.newFixedThreadPool(NTHREADS);
 		System.out.println ("Parallel test ...");
 		long start = System.nanoTime();
+		executor = Executors.newFixedThreadPool(NTHREADS);
 		Report report = null;
 		try {
 			report = new TextDiff().compareWithThread( oldFileName, newFileName, executor);
