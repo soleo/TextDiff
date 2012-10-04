@@ -1,5 +1,4 @@
 
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,15 +11,11 @@ public class SymbolCollection
 
     public Symbol getSymbolFor(String line)
     {
-    	Symbol symbol=null;
-    	synchronized(symbols)
+        Symbol symbol = (Symbol) symbols.get( line );
+        if (null == symbol)
         {
-	        symbol = (Symbol) symbols.get( line );
-	        if (null == symbol)
-	        {
-	            symbol = new Symbol();
-	            symbols.put( line, symbol );
-	        }
+            symbol = new Symbol();
+            symbols.put( line, symbol );
         }
         return symbol;
     }

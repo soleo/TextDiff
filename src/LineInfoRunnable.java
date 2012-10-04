@@ -22,7 +22,11 @@ public class LineInfoRunnable implements Runnable {
 		for (int line = 0; line < fileInfo.length; line++) {
 			LineInfo lineInfo = new LineInfo();
 			fileInfo.lineInfo[line] = lineInfo;
-			Symbol symbol = symbols.getSymbolFor(fileInfo.lines[line]);
+			Symbol symbol = null;
+			synchronized (symbols)
+			{
+				symbol = symbols.getSymbolFor(fileInfo.lines[line]);
+			}
 			lineInfo.lineStatus = symbol.getState();
 			if (lineInfo.isMatch()) {
 				lineInfo.oldLineNum = symbol.getLineNum(OLD);

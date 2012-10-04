@@ -22,14 +22,14 @@ public class Symbol
     }
 
     /** Returns state after counting the line */
-    public int countLine(int aFile, int aLineNum)
+    public  int countLine(int aFile, int aLineNum)
     {
         lineNum[aFile] = aLineNum;
         return adjustState( aFile + 1 );
     }
 
     /** Adusts and returns state */
-    private int adjustState(int newState)
+    private  int adjustState(int newState)
     {
         if ((state & newState) == newState)
             state = OTHER;
@@ -43,7 +43,7 @@ public class Symbol
         return state;
     }
 
-    public int getLineNum(int fileIx)
+    public  int getLineNum(int fileIx)
     {
         return lineNum[fileIx];
     }
