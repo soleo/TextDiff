@@ -21,7 +21,7 @@ public class main {
 	{
 		System.out.println ("Parallel test ...");
 		String fret = "parallel";
-		long start = System.nanoTime();
+		long start = System.currentTimeMillis();
 		executor = Executors.newFixedThreadPool(NTHREADS);
 		Report report = null;
 		try {
@@ -37,8 +37,8 @@ public class main {
 	    // Wait until all threads are finish
 	    while (!executor.isTerminated()) {
 	      }
-		long end = System.nanoTime();
-		long microseconds = (end - start) / 1000;
+		long end = System.currentTimeMillis();
+		long microseconds = (end - start) ;
 		System.out.println("Latency: " + microseconds);
 		return fret;
 	}
@@ -46,7 +46,7 @@ public class main {
 	{
 		System.out.println ("Sequential test ...");
 		String fret = "sequential";
-		long start = System.nanoTime();
+		long start = System.currentTimeMillis();
 		Report report = null;
 		try {
 			report = new TextDiff().compare( oldFileName, newFileName );
@@ -54,8 +54,8 @@ public class main {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		long end = System.nanoTime();
-		long microseconds = (end - start) / 1000;
+		long end = System.currentTimeMillis();
+		long microseconds = (end - start) ;
 		System.out.println("Latency: " + microseconds);
 		return fret;
 	}
