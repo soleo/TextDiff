@@ -96,7 +96,6 @@ public class TextDiff {
 		createLineInfoWithThread();
 		//TODO Silviu and Xinjiang
 		stretchMatches(oldFileInfo);
-		//TODO implement some sort of time measure
 		return new Report(oldFileInfo, newFileInfo);
 	}
 	/** Compare two string arrays */

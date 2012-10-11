@@ -17,64 +17,64 @@ public class main {
 	public  static ExecutorService executor = null;
 	public static final int NTHREADS = 2;
 	
-	public static String parallelRun(String oldFileName, String newFileName)
+	public static long parallelRun(String oldFileName, String newFileName) throws FileNotFoundException
 	{
-		System.out.println ("Parallel test ...");
-		String fret = "parallel";
-		long start = System.currentTimeMillis();
+		long start = System.nanoTime();
 		executor = Executors.newFixedThreadPool(NTHREADS);
-		Report report = null;
-		try {
-			report = new TextDiff().compareWithThread( oldFileName, newFileName, executor);
-			report.print(new PrintStream(new File(fret)));
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Report report = new TextDiff().compareWithThread( oldFileName, newFileName, executor);
+		report.print(new PrintStream(new File("parallel")));
+
 		// This will make the executor accept no new threads
 	    // and finish all existing threads in the queue
 	    executor.shutdown();
 	    // Wait until all threads are finish
 	    while (!executor.isTerminated()) {
 	      }
-		long end = System.currentTimeMillis();
-		long microseconds = (end - start) ;
-		System.out.println("Latency: " + microseconds);
-		return fret;
+		long end = System.nanoTime();;
+		System.out.println("Parallel->"+(end - start)/1000);
+		return (end - start)/1000000;
 	}
-	public static String sequentialRun(String oldFileName, String newFileName)
+	public static long sequentialRun(String oldFileName, String newFileName) throws Exception
 	{
-		System.out.println ("Sequential test ...");
-		String fret = "sequential";
-		long start = System.currentTimeMillis();
-		Report report = null;
-		try {
-			report = new TextDiff().compare( oldFileName, newFileName );
-			report.print(new PrintStream(new File(fret)));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		long end = System.currentTimeMillis();
-		long microseconds = (end - start) ;
-		System.out.println("Latency: " + microseconds);
-		return fret;
+		long start = System.nanoTime();
+		Report report = new TextDiff().compare( oldFileName, newFileName );
+		report.print(new PrintStream(new File("sequential")));
+		long end = System.nanoTime();
+		System.out.println("Sequential->"+(end - start)/1000);
+		return (end - start)/1000000;
 	}
-	public static String corectnessTest(String seq, String par) throws IOException
+	
+	public static double corectnessTest(String f1, String f2) throws Exception
 	{
-		TextFileIn fseq= new TextFileIn(seq);
-		TextFileIn fpar= new TextFileIn(par);
-		if (fseq.asString().equals(fpar.asString()))
-			return "Result files are equal"; 
-		return "Result files are NOT equal";
+		long seq = sequentialRun(f1,f2);
+		long par = parallelRun(f1,f2);
+		TextFileIn fseq= new TextFileIn("sequential");
+		TextFileIn fpar= new TextFileIn("parallel");
+		if (!fseq.asString().equals(fpar.asString()))
+			throw new RuntimeException("Result Files not Equal!");
+		double improv = ((double)seq-(double)par)/(double)seq;
+		return improv;
 	}
 	public static void main(String[] args) 
-	{
+	{ 
+		int n = 10;
+		double diff = 0.0;
 		try {
-			String msg = corectnessTest(sequentialRun(args[0],args[1]), parallelRun(args[0],args[1]));
-			System.out.println(msg);
+			for (int i=0; i<n; i++)
+			{
+				System.out.print(". ");
+				diff += corectnessTest(args[0],args[1]);
+			}
+			System.out.println();
+			System.out.println("Improvement from parallelism -> " + (diff/n)*100+"%");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+
 		}
 	}
 
