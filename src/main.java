@@ -46,9 +46,9 @@ public class main {
 	
 	public static double corectnessTest(String f1, String f2) throws Exception
 	{
-		double seq = sequentialRun(f1,f2);
-		
+
 		double par = parallelRun(f1,f2);
+		double seq = sequentialRun(f1,f2);
 		TextFileIn fseq= new TextFileIn("sequential");
 		TextFileIn fpar= new TextFileIn("parallel");
 		if (!fseq.asString().equals(fpar.asString()))
@@ -67,7 +67,7 @@ public class main {
 				double improv = 0.0;
 				improv = corectnessTest(args[0],args[1]);
 				diff += improv;
-				Thread.sleep(2000);
+				
 				System.out.println("Current Improvement from parallelism -> " + improv*100+"%");
 			}
 			System.out.println();
