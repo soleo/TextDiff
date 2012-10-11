@@ -17,7 +17,7 @@ public class main {
 	public  static ExecutorService executor = null;
 	public static final int NTHREADS = 2;
 	
-	public static long parallelRun(String oldFileName, String newFileName) throws FileNotFoundException
+	public static double parallelRun(String oldFileName, String newFileName) throws FileNotFoundException
 	{
 		long start = System.nanoTime();
 		executor = Executors.newFixedThreadPool(NTHREADS);
@@ -31,23 +31,24 @@ public class main {
 	    while (!executor.isTerminated()) {
 	      }
 		long end = System.nanoTime();;
-		System.out.println("Parallel->"+(end - start)/1000);
-		return (end - start)/1000000;
+		System.out.println("Parallel->"+(end - start)/(double)1000);
+		return (end - start)/(double)1000000;
 	}
-	public static long sequentialRun(String oldFileName, String newFileName) throws Exception
+	public static double sequentialRun(String oldFileName, String newFileName) throws Exception
 	{
 		long start = System.nanoTime();
 		Report report = new TextDiff().compare( oldFileName, newFileName );
 		report.print(new PrintStream(new File("sequential")));
 		long end = System.nanoTime();
-		System.out.println("Sequential->"+(end - start)/1000);
-		return (end - start)/1000000;
+		System.out.println("Sequential->"+(end - start)/(double)1000);
+		return (end - start)/(double)1000000;
 	}
 	
 	public static double corectnessTest(String f1, String f2) throws Exception
 	{
-		long seq = sequentialRun(f1,f2);
-		long par = parallelRun(f1,f2);
+		double seq = sequentialRun(f1,f2);
+		
+		double par = parallelRun(f1,f2);
 		TextFileIn fseq= new TextFileIn("sequential");
 		TextFileIn fpar= new TextFileIn("parallel");
 		if (!fseq.asString().equals(fpar.asString()))
@@ -63,7 +64,11 @@ public class main {
 			for (int i=0; i<n; i++)
 			{
 				System.out.print(". ");
-				diff += corectnessTest(args[0],args[1]);
+				double improv = 0.0;
+				improv = corectnessTest(args[0],args[1]);
+				diff += improv;
+				Thread.sleep(2000);
+				System.out.println("Current Improvement from parallelism -> " + improv*100+"%");
 			}
 			System.out.println();
 			System.out.println("Improvement from parallelism -> " + (diff/n)*100+"%");
