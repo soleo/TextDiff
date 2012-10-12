@@ -87,15 +87,9 @@ public class TextDiff {
 	}
 	
 	public Report compareWithThread(){
-		//TODO make parallel, use sequential and concurrent hash map (Silviu)
-		/*
-		 * Interesting result: same perfomance with 1 or 2 threads. Not worth parallelizing!!!
-		 */
 		createSymbolsWithThread();
-		//is parallel
 		createLineInfoWithThread();
-		//TODO Silviu and Xinjiang
-		stretchMatches(oldFileInfo);
+		stretchMatchesWithThread(oldFileInfo);
 		return new Report(oldFileInfo, newFileInfo);
 	}
 	/** Compare two string arrays */
@@ -175,26 +169,21 @@ public class TextDiff {
 		ExecutorService es = main.executor;
 		Runnable task1 = new LineInfoRunnable(oldFileInfo, symbols);
 		Runnable task2 = new LineInfoRunnable(newFileInfo, symbols);
-		List<Future<Runnable>> futures = new ArrayList<Future<Runnable>>();
 	      
-	   Future f1 = es.submit(task1);
-	   Future f2 = es.submit(task2);
-	   futures.add(f1);
-	   futures.add(f2); 
 
 	   // wait for all tasks to complete before continuing
-	   for (Future<Runnable> f : futures)
-	   {
-	         try {
-				f.get();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ExecutionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	    }
+         try {
+        	 Future f1 = es.submit(task1);
+        	 Future f2 = es.submit(task2);
+        	 f1.get();
+        	 f2.get();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	private void createLineInfo(FileInfo fileInfo) {
 		for (int line = 0; line < fileInfo.length; line++) {
@@ -229,43 +218,33 @@ public class TextDiff {
 		final int FORWARD = 1;
 		final int BACKWARD = -1;
 		int lBlockNum = 0;
-		List<Future> futures = new ArrayList<Future>();
-		ExecutorService es = Executors.newCachedThreadPool();
-		for (int line = 0; fileInfo.isValidLineNum(line); line++) 
-		{
-			final LineInfo lineInfo = fileInfo.lineInfo[line];
-			if ((lineInfo.isMatch()) && (lineInfo.blockNum == 0)) {
-				lBlockNum++;
-				final int lnum = lBlockNum;
-				futures.add((Future) es.submit( new Runnable()
-				{
-					public void	run() 
-					{
-					stretchOneMatch(lnum, lineInfo.oldLineNum,
+		Future f1 = null;
+		Future f2 = null;
+		ExecutorService es = main.executor;
+		StretchMatchRunnable smr1= new StretchMatchRunnable();
+		StretchMatchRunnable smr2= new StretchMatchRunnable();
+		smr1.td=this;smr2.td=this;
+        try {
+			for (int line = 0; fileInfo.isValidLineNum(line); line++) 
+			{
+				final LineInfo lineInfo = fileInfo.lineInfo[line];
+				if ((lineInfo.isMatch()) && (lineInfo.blockNum == 0)) {
+					lBlockNum++;
+					smr1.set(lBlockNum, lineInfo.oldLineNum,
 							lineInfo.newLineNum, FORWARD);
-					}
-				}));
-				futures.add((Future)es.submit( new Runnable()
-				{
-					public void	run() 
-					{
-					stretchOneMatch(lnum, lineInfo.oldLineNum,
-							lineInfo.newLineNum, BACKWARD);
-					}
-				}));
+					f1 = (Future) es.submit(smr1);
+					smr2.set(lBlockNum, lineInfo.oldLineNum,lineInfo.newLineNum, BACKWARD);
+					f2 = (Future)es.submit( smr2 );
+					f1.get();
+					f2.get();
 			}
-		for (Future f : futures)
-		   {
-		         try {
-					f.get();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (ExecutionException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-		    }
+			}
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	/**
@@ -273,7 +252,7 @@ public class TextDiff {
 	 * unique match, too. If unique match lines are separated by matching but
 	 * non-unique lines this will merge them all into one block.
 	 */
-	private  void stretchOneMatch(int blockNum, int oldLineNum, int newLineNum,
+	public void stretchOneMatch(int blockNum, int oldLineNum, int newLineNum,
 			int whichWay) {
 		int lOldLineNum = oldLineNum;
 		int lNewLineNum = newLineNum;
@@ -291,26 +270,5 @@ public class TextDiff {
 				break;
 		}
 	}
-	private  void stretchOneMatchWithThread(int blockNum, int oldLineNum, int newLineNum,
-			int whichWay) {
-		int lOldLineNum = oldLineNum;
-		int lNewLineNum = newLineNum;
-		while (true) {
-			//sync
-			oldFileInfo.setBlockNumber(lOldLineNum, blockNum);
-			newFileInfo.setBlockNumber(lNewLineNum, blockNum);
-			//sync
-			oldFileInfo.lineInfo[lOldLineNum].newLineNum = lNewLineNum;
-			newFileInfo.lineInfo[lNewLineNum].oldLineNum = lOldLineNum;
-
-			lOldLineNum += whichWay;
-			lNewLineNum += whichWay;
-			//sync
-			if (!(oldFileInfo.isValidLineNum(lOldLineNum)
-					&& newFileInfo.isValidLineNum(lNewLineNum) && 
-					oldFileInfo.lines[lOldLineNum]
-					.equals(newFileInfo.lines[lNewLineNum])))
-				break;
-		}
-	}
+	
 }
