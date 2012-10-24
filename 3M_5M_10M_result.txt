@@ -1,0 +1,105 @@
+3M Files Result
+========================================================
+. Parallel->8341302.0
+Sequential->9298245.0
+Current Improvement from parallelism -> 10.291651811712867%
+. Parallel->1.1299389E7
+Sequential->6530644.0
+Current Improvement from parallelism -> -73.021052747631%
+. Parallel->7653817.0
+Sequential->8043941.0
+Current Improvement from parallelism -> 4.849911256186487%
+. Parallel->6316811.0
+Sequential->7624520.0
+Current Improvement from parallelism -> 17.15136165948808%
+. Parallel->6857048.0
+Sequential->6528833.0
+Current Improvement from parallelism -> -5.027161822028534%
+. Parallel->5510694.0
+Sequential->6645421.0
+Current Improvement from parallelism -> 17.07532148828494%
+. Parallel->6672291.0
+Sequential->8665062.0
+Current Improvement from parallelism -> 22.99776966396778%
+. Parallel->8727611.0
+Sequential->7469706.0
+Current Improvement from parallelism -> -16.840087146669504%
+. Parallel->6644887.0
+Sequential->9319227.0
+Current Improvement from parallelism -> 28.697015321120528%
+. Parallel->1.2222965E7
+Sequential->1.4014395E7
+Current Improvement from parallelism -> 12.782785129147566%
+
+Improvement from parallelism -> 1.8957514613579216%
+==========================================================
+5M Files Result
+==========================================================
+. Parallel->1.1094926E7
+Sequential->1.0749328E7
+Current Improvement from parallelism -> -3.215066095294515%
+. Parallel->1.1137463E7
+Sequential->1.2802904E7
+Current Improvement from parallelism -> 13.008306552950804%
+. Parallel->1.3556258E7
+Sequential->1.6247163E7
+Current Improvement from parallelism -> 16.56230690859691%
+. Parallel->1.4272286E7
+Sequential->2.0231199E7
+Current Improvement from parallelism -> 29.454077338668856%
+. Parallel->1.0413006E7
+Sequential->1.0391208E7
+Current Improvement from parallelism -> -0.2097734931299505%
+. Parallel->9627911.0
+Sequential->1.1424848E7
+Current Improvement from parallelism -> 15.728323037645664%
+. Parallel->1.0809258E7
+Sequential->1.1461053E7
+Current Improvement from parallelism -> 5.687042892132163%
+. Parallel->1.2919499E7
+Sequential->2.2381703E7
+Current Improvement from parallelism -> 42.27651488360828%
+. Parallel->1.5711158E7
+Sequential->1.2086767E7
+Current Improvement from parallelism -> -29.98643888808314%
+. Parallel->1.2113784E7
+Sequential->1.2513847E7
+Current Improvement from parallelism -> 3.1969625327846836%
+
+Improvement from parallelism -> 9.250225566987977%
+==========================================================
+10M Files Result
+==========================================================
+. Parallel->2.0809413E7
+Sequential->2.0749404E7
+Current Improvement from parallelism -> -0.28920830689884797%
+. Parallel->2.6446685E7
+Sequential->2.7725055E7
+Current Improvement from parallelism -> 4.610883549194038%
+. Parallel->4.377208E7
+Sequential->3.298084E7
+Current Improvement from parallelism -> -32.71972454309838%
+. Parallel->2.3601251E7
+Sequential->5.2591393E7
+Current Improvement from parallelism -> 55.12335830313526%
+. Parallel->3.11000129E8
+Sequential->3.8635131E7
+Current Improvement from parallelism -> -704.9671916474155%
+. Parallel->4.4954212E7
+Sequential->6.1138041E7
+Current Improvement from parallelism -> 26.470964288829602%
+. Parallel->1.9117695E7
+Sequential->2.1747684E7
+Current Improvement from parallelism -> 12.093191164631605%
+. Parallel->2.37124E7
+Sequential->2.9125099E7
+Current Improvement from parallelism -> 18.58431107822156%
+. Parallel->2.0515157E7
+Sequential->2.7353423E7
+Current Improvement from parallelism -> 24.99967188750015%
+. Parallel->4.0691288E7
+Sequential->2.6814894E7
+Current Improvement from parallelism -> -51.748830332873965%
+
+Improvement from parallelism -> -64.78425745587744%
+==========================================================
