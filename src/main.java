@@ -19,7 +19,7 @@ public class main {
 	
 	public static double parallelRun(String oldFileName, String newFileName) throws FileNotFoundException
 	{
-		long start = System.nanoTime();
+		//long start = System.nanoTime();
 		executor = Executors.newFixedThreadPool(NTHREADS);
 		Report report = new TextDiff().compareWithThread( oldFileName, newFileName, executor);
 		report.print(new PrintStream(new File("parallel")));
@@ -30,18 +30,20 @@ public class main {
 	    // Wait until all threads are finish
 	    while (!executor.isTerminated()) {
 	      }
-		long end = System.nanoTime();;
-		System.out.println("Parallel->"+(end - start)/(double)1000);
-		return (end - start)/(double)1000000;
+		//long end = System.nanoTime();;
+		//System.out.println("Parallel->"+(end - start)/(double)1000);
+		//return (end - start)/(double)1000000;
+	    return 0.0;
 	}
 	public static double sequentialRun(String oldFileName, String newFileName) throws Exception
 	{
-		long start = System.nanoTime();
+		//long start = System.nanoTime();
 		Report report = new TextDiff().compare( oldFileName, newFileName );
 		report.print(new PrintStream(new File("sequential")));
-		long end = System.nanoTime();
-		System.out.println("Sequential->"+(end - start)/(double)1000);
-		return (end - start)/(double)1000000;
+		//long end = System.nanoTime();
+		//System.out.println("Sequential->"+(end - start)/(double)1000);
+		//return (end - start)/(double)1000000;
+		return 0.0;
 	}
 	
 	public static double corectnessTest(String f1, String f2) throws Exception
@@ -56,8 +58,39 @@ public class main {
 		double improv = ((double)seq-(double)par)/(double)seq;
 		return improv;
 	}
+	public static void usage(){
+		System.out.println("Usage:");
+		System.out.println("Java main oldfile newfile p|s");
+		System.exit(0);
+	}
 	public static void main(String[] args) 
 	{ 
+		if(args.length < 3){
+			usage();
+		}
+		String f1 = args[0];
+		String f2 = args[1];
+		String version = args[2];
+		if(version.contentEquals("p")){
+			//System.out.println("p");
+			try {
+				parallelRun(f1,f2);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			//System.out.println("done");
+		}else if(version.contentEquals("s")){
+			//System.out.println("s");
+			try {
+				sequentialRun(f1,f2);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			//System.out.println("done");
+		}
+		/*
 		int n = 10;
 		double diff = 0.0;
 		try {
@@ -79,7 +112,7 @@ public class main {
 			// TODO Auto-generated catch block
 			System.out.println(e.getMessage());
 			e.printStackTrace();
-		}
+		}*/
 	}
 
 }
