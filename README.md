@@ -3,16 +3,19 @@ TextDiff
 
 A multi-threads version of TextDiff
 
+Evaluation Script
+========
 ```bash
 #!/bin/bash
 
-stotal=0
-ptotal=0
+
 file1="../1.txt"
 file2="../2.txt"
 for x in {1..5}
 do
- echo "Running $file1 $file2"   
+ echo "Running $file1 $file2" 
+ stotal=0
+ ptotal=0
 for i in {1..10}
 do
         t0=`python -c 'import time; print repr(time.time()*1000000)'`
